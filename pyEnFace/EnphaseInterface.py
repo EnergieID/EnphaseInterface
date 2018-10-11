@@ -262,6 +262,12 @@ class RawEnphaseInterface(object):
         validArgs = self._filterAttributes(('start_date','end_date'),kwargs)
         return self._execQuery(system_id, 'energy_lifetime', validArgs)
 
+    def consumption_lifetime(self, system_id, **kwargs):
+        """Get the lifetime energy consumption measured by the system"""
+
+        validArgs = self._filterAttributes(('start_date','end_date'), kwargs)
+        return self._execQuery(system_id, 'consumption_lifetime', validArgs)
+
     def envoys(self, system_id, **kwargs):
         '''List the envoys associated with the system'''
 
@@ -331,6 +337,8 @@ class PandasEnphaseInterface(JsonEnphaseInterface):
 
         if command == 'energy_lifetime':
             output = self._energy_lifetime(data)
+        elif command == 'consumption_lifetime':
+            output = self._consumption_lifetime(data)
         elif command == 'envoys':
             output = self._envoys(data)
         elif command == 'index' or command == '':
@@ -351,15 +359,22 @@ class PandasEnphaseInterface(JsonEnphaseInterface):
         indexes = output.index.names
         return self._datetimeify(output).set_index(indexes)
 
-    def _energy_lifetime(self,data):
-        d = json_normalize(data, 'production',['start_date','system_id'])
-        ts = to_timedelta(Series(d.index),unit='D')
+    def _lifetime(self, data, column):
+        """column can be 'production', or 'consumption'"""
+        d = json_normalize(data, column, ['start_date', 'system_id'])
+        ts = to_timedelta(Series(d.index), unit='D')
         d['start_date'] = to_datetime(d['start_date']) + ts
         d['start_date'] = d['start_date'].apply(
-                lambda x:self.dtt.stringify('start_date',x))
-        d.rename(columns={0:'production'},inplace=True)
+            lambda x: self.dtt.stringify('start_date', x))
+        d.rename(columns={0: column}, inplace=True)
 
-        return d.set_index(['system_id','start_date'])
+        return d.set_index(['system_id', 'start_date'])
+
+    def _energy_lifetime(self, data):
+        return self._lifetime(data, "production")
+
+    def _consumption_lifetime(self, data):
+        return self._lifetime(data, "consumption")
 
     def _envoys(self,data):
         return json_normalize(data, 'envoys',
