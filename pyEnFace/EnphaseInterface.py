@@ -151,7 +151,7 @@ class RawEnphaseInterface(object):
 
     def __init__(self, userId, max_wait=DEFAULT_MAX_WAIT,
             useragent='Mozilla/5.0', datetimeType=DateTimeType.Enphase,
-            errorhandler=None):
+            errorhandler=None, api_key=None):
 
         if errorhandler==None:
             errorhandler=EnphaseErrorHandler(datetimeType,max_wait)
@@ -164,6 +164,9 @@ class RawEnphaseInterface(object):
         self.opener = r.build_opener(self.handler)
         self.opener.addheaders = [('User-agent',useragent)]
         self.apiDest = APIV2
+
+        if api_key is not None:
+            APIKEYRING.append(api_key)
 
     def _execQuery(self, system_id, command, extraParams = dict()):
         '''Generates a request url for the Enphase API'''
