@@ -119,11 +119,11 @@ class DateTimeType(Enum):
             if '_date' in key:
                 return dt.datetime.strptime(value,'%Y-%m-%d')
             else:
-                return dt.datetime.fromtimestamp(value)
+                return pd.Timestamp.utcfromtimestamp(value).tz_localize('UTC')
         elif self is DateTimeType.Iso8601:
             return dp.parser.parse(value)
         elif self is DateTimeType.Epoch:
-            return dt.datetime.fromtimestamp(value)
+            return pd.Timestamp.utcfromtimestamp(value).tz_localize('UTC')
         logging.warning('Failed to datetimeify %s' % value)
 
     def sanatizeTimes(self, query):
