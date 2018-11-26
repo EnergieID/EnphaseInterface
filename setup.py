@@ -11,7 +11,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 
 setup(
     name='pyEnFace',
-    version='0.9.6',
+    version='0.9.7',
     description='A python interface to the Enphase Developer API',
     long_description=long_description,
     url='https://github.com/e2thenegpii/EnphaseInterface',
