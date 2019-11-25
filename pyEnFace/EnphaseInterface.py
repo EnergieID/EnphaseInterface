@@ -361,14 +361,14 @@ class PandasEnphaseInterface(JsonEnphaseInterface):
 
     def _lifetime(self, data, column):
         """column can be 'production', or 'consumption'"""
-        d = json_normalize(data, column, ['start_date', 'system_id'])
+        d = json_normalize(data, column, ['start_date', 'system_id'], errors='ignore')
         ts = to_timedelta(Series(d.index), unit='D')
         d['start_date'] = to_datetime(d['start_date']) + ts
         d['start_date'] = d['start_date'].apply(
             lambda x: self.dtt.stringify('start_date', x))
         d.rename(columns={0: column}, inplace=True)
-
-        return d.set_index(['system_id', 'start_date'])
+        d.set_index(['system_id', 'start_date'], inplace=True)
+        return d
 
     def _energy_lifetime(self, data):
         return self._lifetime(data, "production")
