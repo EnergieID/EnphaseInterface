@@ -44,7 +44,10 @@ class EnphaseErrorHandler(r.BaseHandler):
         logging.info('Received HTTP Error 409')
         logging.debug(data)
 
-        end = self.dtt.datetimeify('period_end',data['period_end'])
+        try:
+            end = self.dtt.datetimeify('period_end',data['period_end'])
+        except KeyError:
+            raise KeyError(f"'period_end' not found in data: {data}")
         diff = end.timestamp() - int(time.time())
 
         if diff < self.max_wait:
